@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import connectDB from "./database.js";
 
 const app = express();
 const port = 3001;
@@ -13,6 +14,22 @@ const adminUser = {
 
 app.use(express.json());
 app.use(cors());
+
+
+app.get("/test", async (req, res) => {
+    let db = await connectDB();
+
+    let volonteri = db.collection("Volonteri");
+    const query = { ime: "Ivan" };
+    const options = {
+      projection: { _id:0, ime:1, prezime:1, email:1}
+    }
+
+    const testVolonter = await volonteri.findOne(query, options);
+    console.log(testVolonter);
+    res.status(201);
+    res.send(testVolonter);
+})
 
 app.get("/volonteri", (req, res) => {
   console.log("working");

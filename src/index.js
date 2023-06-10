@@ -16,20 +16,6 @@ app.use(express.json());
 app.use(cors());
 
 
-app.get("/test", async (req, res) => {
-    let db = await connectDB();
-
-    let volonteri = db.collection("Volonteri");
-    const query = { ime: "Ivan" };
-    const options = {
-      projection: { _id:0, ime:1, prezime:1, email:1}
-    }
-
-    const testVolonter = await volonteri.findOne(query, options);
-    console.log(testVolonter);
-    res.status(201);
-    res.send(testVolonter);
-})
 
 app.get("/volonteri", (req, res) => {
   console.log("working");
@@ -56,15 +42,32 @@ app.get("/volonteri", (req, res) => {
   res.send(volonteri);
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async(req, res) => {
   console.log("posting");
 
-  let workingLogin = false;
+  let db = await connectDB();
+  let volonteri = db.collection("Volonteri");  
 
-  if (req.body.email === adminUser.email && req.body.password === adminUser.password)
-    workingLogin = true;
+  let filter = {
+    'email': req.body.email,
+    'password':req.body.password
+  };
+  let projection = {
+    '_id': 0, 
+    'ime': 1, 
+    'prezime': 1, 
+    'godine': 1, 
+    'broj_aktivnosti': 1, 
+    'broj_volonterskih_sati': 1
+  };
+  
 
-  res.send(workingLogin);
+  let volonter = await volonteri.findOne(filter, { projection });
+
+
+  res.status(201);
+  res.send(volonter);
+
 });
 
 app.listen(port, () => {

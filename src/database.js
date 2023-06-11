@@ -9,7 +9,7 @@ let db=null;
 let client = new MongoClient(url);
 
 export default async()=> {
-    if( !db || !isConnected()){
+    if( !db || !client.isConnected){
         await client.connect();
         db=client.db("ScoutHelp");
         console.log("uspiješna veza a bazom");

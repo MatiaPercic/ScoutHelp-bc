@@ -68,8 +68,37 @@ app.post("/login", async(req, res) => {
   res.status(201);
   res.send(volonter);
 
+
 });
 
+app.post("/loginAdmin", async(req, res) => {
+  console.log("posting");
+
+  let db = await connectDB();
+  let admins = db.collection("Admins");  
+
+  let filter = {
+    'email': req.body.email,
+    'password':req.body.password
+  };
+  let projection = {
+    '_id': 0, 
+    'ime': 1, 
+    'prezime': 1, 
+    'godine': 1, 
+    'email': 1, 
+    'pozicija': 1
+  };
+  
+
+  let admin = await admins.findOne(filter, { projection });
+
+
+  res.status(201);
+  res.send(admin);
+
+
+});
 app.listen(port, () => {
   console.log('listening on port', port);
 });

@@ -16,32 +16,6 @@ app.use(express.json());
 app.use(cors());
 
 
-
-app.get("/volonteri", (req, res) => {
-  console.log("working");
-
-  let volonteri = [
-    {
-      ime: 'Ivo',
-      prezime: 'Ivić',
-      email: 'iivić@gmail.com',
-      godine: 22,
-      br_aktivnosti: 5,
-      br_sati: 12
-    },
-    {
-      ime: 'Marko',
-      prezime: 'Marković',
-      email: 'mmarković@gmail.com',
-      godine: 21,
-      br_aktivnosti: 2,
-      br_sati: 4
-    }
-  ];
-  
-  res.send(volonteri);
-});
-
 app.post("/login", async(req, res) => {
   console.log("posting");
 
@@ -99,6 +73,36 @@ app.post("/loginAdmin", async(req, res) => {
 
 
 });
+
+app.post("/register", async(req, res) => {
+  console.log("posting");
+
+  let db = await connectDB();
+  let volonteri = db.collection("Volonteri");  
+
+
+  let volonter = {
+    
+    'ime': req.body.ime, 
+    'prezime': req.body.prezime, 
+    'godine': req.body.godine, 
+    'broj_aktivnosti': 0, 
+    'broj_volonterskih_sati': 0
+  };
+  
+
+  await volonteri.insertOne(volonter, function(e,res){
+      if(e) throw e
+
+      console.log("uspiješnan upis volontera");
+  });
+
+  res.status(201);
+  res.send("Volonter registriran");
+
+});
+
+
 app.listen(port, () => {
   console.log('listening on port', port);
 });

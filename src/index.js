@@ -86,11 +86,26 @@ app.post("/register", async(req, res) => {
     'ime': req.body.ime, 
     'prezime': req.body.prezime, 
     'godine': req.body.godine, 
+    'email':req.body.email,
+    'password':req.body.password,
     'broj_aktivnosti': 0, 
     'broj_volonterskih_sati': 0
   };
   
+  let filter={
+    'email':req.body.email
+  };
+let projection={
+  'email':1
+};
+  let exist=await volonteri.findOne(filter,{projection});
 
+if(exist){
+
+  res.status(201);
+  res.send("Korisnik već postoji");
+}
+else{
   await volonteri.insertOne(volonter, function(e,res){
       if(e) throw e
 
@@ -99,6 +114,7 @@ app.post("/register", async(req, res) => {
 
   res.status(201);
   res.send("Volonter registriran");
+}
 
 });
 

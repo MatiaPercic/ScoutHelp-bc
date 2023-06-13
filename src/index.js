@@ -128,55 +128,89 @@ app.post("findAll",(req,res)=>{
 
 
 
-app.get("/findAll", async (req,res)=>{
+app.get("/findAll", async (req, res) => {
+  let db = await connectDB();
+
+  let aktivnosti = db.collection("Aktivnosti");
+  let volonteri = db.collection("Volonteri");
+  let admini = db.collection("Admins");
+  let oblici = db.collection("Oblici_rada");
 
 
-let db = await connectDB();
-
-let aktivnosti = db.collection("Aktivnosti"); 
-let volonteri=db.collection("Volonteri");
-let admini=db.collection("Admins");
-let oblici=db.collection("Oblici_rada");
-
-const pipeline = [
-  {
-    $lookup: {
-      from: 'Volonteri',
-      localField: 'volonteri',
-      foreignField: '_id',
-      as: 'volonterData'
+  
+  let pipeline1 = [
+    {
+      $lookup: {
+        from: 'Volonteri',
+        localField: 'volonteri',
+        foreignField: '_id',
+        as: 'volonterData'
+      }
+    },
+    {
+      $unwind: '$volonterData'
+    },
+    {
+      $lookup: {
+        from: 'Volonteri',
+        localField: 'volonteri',
+        foreignField: '_id',
+        as: 'volonterPrez'
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        datum: 1,
+        opis: 1,
+        sati: 1,
+        volonterPrez: '$volonterData.prezime',
+        admin: 1,
+        oblik_rada: 1,
+      }
     }
-  },
-  {
-    $unwind: '$volonterData'
-  },
-  {
-    $lookup: {
-      from: 'Volonteri',
-      localField: 'volonteri',
-      foreignField: '_id',
-      as: 'volonterPrez'
+  ];
+
+
+  let pipeline2 = [
+    {
+      $lookup: {
+        from: 'Admins',
+        localField: 'admin',
+        foreignField: '_id',
+        as: 'adminData'
+      }
+    },
+    {
+      $unwind: '$adminData'
+    },
+    {
+      $lookup: {
+        from: 'Admins',
+        localField: 'admin',
+        foreignField: '_id',
+        as: 'adminPrez'
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        datum: 1,
+        opis: 1,
+        sati: 1,
+        volonterPrez: 1,
+        adminPrez: '$adminPrez.prezime',
+        oblik_rada: 1,
+      }
     }
-  },
-  {
-    $project: {
-      _id: 0,
-      datum: 1,
-      opis:1,
-      sati:1,
-      volonterPrez: '$volonterPrez.prezime',
-      // Include other fields you need from the "Activities" collection
-    }
-  }
-];
+  ];
 
-const result = await aktivnosti.aggregate(pipeline).toArray();
+  let result = await aktivnosti.aggregate(pipeline2).toArray();
 
-
-res.send(result);
-
-
+  res.send(result);
 });
+
+
 
 
 

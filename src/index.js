@@ -5,12 +5,7 @@ import connectDB from "./database.js";
 const app = express();
 const port = 3001;
 
-const adminUser = {
-  ime: 'Matia',
-  prezime: 'Perčić',
-  email: 'mpercic@gmail.com',
-  password: 'percic'
-};
+
 
 app.use(express.json());
 app.use(cors());
@@ -45,6 +40,9 @@ app.post("/login", async(req, res) => {
 
 });
 
+
+
+
 app.post("/loginAdmin", async(req, res) => {
   console.log("posting");
 
@@ -73,6 +71,8 @@ app.post("/loginAdmin", async(req, res) => {
 
 
 });
+
+
 
 app.post("/register", async(req, res) => {
   console.log("posting");
@@ -117,6 +117,67 @@ else{
 }
 
 });
+
+
+
+
+app.post("findAll",(req,res)=>{
+
+
+});
+
+
+
+app.get("/findAll", async (req,res)=>{
+
+
+let db = await connectDB();
+
+let aktivnosti = db.collection("Aktivnosti"); 
+let volonteri=db.collection("Volonteri");
+let admini=db.collection("Admins");
+let oblici=db.collection("Oblici_rada");
+
+const pipeline = [
+  {
+    $lookup: {
+      from: 'Volonteri',
+      localField: 'volonteri',
+      foreignField: '_id',
+      as: 'volonterData'
+    }
+  },
+  {
+    $unwind: '$volonterData'
+  },
+  {
+    $lookup: {
+      from: 'Volonteri',
+      localField: 'volonteri',
+      foreignField: '_id',
+      as: 'volonterPrez'
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      datum: 1,
+      opis:1,
+      sati:1,
+      volonterPrez: '$volonterPrez.prezime',
+      // Include other fields you need from the "Activities" collection
+    }
+  }
+];
+
+const result = await aktivnosti.aggregate(pipeline).toArray();
+
+
+res.send(result);
+
+
+});
+
 
 
 app.listen(port, () => {

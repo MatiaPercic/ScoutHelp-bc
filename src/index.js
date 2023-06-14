@@ -11,6 +11,9 @@ app.use(express.json());
 app.use(cors());
 
 
+
+// -----LOGIN -----
+
 app.post("/login", async(req, res) => {
   console.log("posting");
 
@@ -42,6 +45,7 @@ app.post("/login", async(req, res) => {
 
 
 
+// ----- loginAdmin -----
 
 app.post("/loginAdmin", async(req, res) => {
   console.log("posting");
@@ -73,6 +77,7 @@ app.post("/loginAdmin", async(req, res) => {
 });
 
 
+// REGISTER
 
 app.post("/register", async(req, res) => {
   console.log("posting");
@@ -120,98 +125,86 @@ else{
 
 
 
+// -----register admin-----
 
-app.post("findAll",(req,res)=>{
+app.post("/registerAdmin", async (req,res)=>{
 
-
-});
-
-
-
-app.get("/findAll", async (req, res) => {
-  let db = await connectDB();
-
-  let aktivnosti = db.collection("Aktivnosti");
-  let volonteri = db.collection("Volonteri");
-  let admini = db.collection("Admins");
-  let oblici = db.collection("Oblici_rada");
-
-
+  console.log("posting");
   
-  let pipeline1 = [
-    {
-      $lookup: {
-        from: 'Volonteri',
-        localField: 'volonteri',
-        foreignField: '_id',
-        as: 'volonterData'
-      }
-    },
-    {
-      $unwind: '$volonterData'
-    },
-    {
-      $lookup: {
-        from: 'Volonteri',
-        localField: 'volonteri',
-        foreignField: '_id',
-        as: 'volonterPrez'
-      }
-    },
-    {
-      $project: {
-        _id: 0,
-        datum: 1,
-        opis: 1,
-        sati: 1,
-        volonterPrez: '$volonterData.prezime',
-        admin: 1,
-        oblik_rada: 1,
-      }
-    }
-  ];
+  let db=await connectDB();
+  let admini=db.collection("Admins");
+  
+  let newAdmin ={
+  
+    'ime':req.body.ime,
+    'prezime':req.body.prezime,
+    'godine':req.body.godine,
+    'email':req.body.email,
+    'pozicija':req.body.pozicija,
+    'password':'admin1234'
+  
+  };
+  
+  let filter={
+    'email':req.body.email
+  };
+  let projection={
+  'email':1
+  };
+  let exist=await admini.findOne(filter,{projection});
+  
+  if(exist){
+  
+  res.status(201);
+  res.send("Administrator već postoji");
+  }
+  else{
+  await admini.insertOne(newAdmin, function(e,res){
+      if(e) throw e
+  
+      console.log("uspiješnan upis admin");
+  });
+  
+  res.status(201);
+  res.send("Administrator registriran");
+  }
+  
+  });
+  
 
 
-  let pipeline2 = [
-    {
-      $lookup: {
-        from: 'Admins',
-        localField: 'admin',
-        foreignField: '_id',
-        as: 'adminData'
-      }
-    },
-    {
-      $unwind: '$adminData'
-    },
-    {
-      $lookup: {
-        from: 'Admins',
-        localField: 'admin',
-        foreignField: '_id',
-        as: 'adminPrez'
-      }
-    },
-    {
-      $project: {
-        _id: 0,
-        datum: 1,
-        opis: 1,
-        sati: 1,
-        volonterPrez: 1,
-        adminPrez: '$adminPrez.prezime',
-        oblik_rada: 1,
-      }
-    }
-  ];
+// find volonter by email
+app.post("/volonterInfo", async (req,res)=>{
+  
 
-  let result = await aktivnosti.aggregate(pipeline2).toArray();
+  let db = await connectDB();
+  let volonteri = db.collection("Volonteri");  
 
-  res.send(result);
+  let filter = {
+    'email': req.body.email,
+  };
+  let projection = {
+    '_id': 0, 
+    'ime': 1, 
+    'prezime': 1, 
+    'godine': 1, 
+    'broj_aktivnosti': 1, 
+    'broj_volonterskih_sati': 1
+  };
+  
+
+  let volonter = await volonteri.findOne(filter, { projection });
+
+
+  res.status(201);
+  res.send(volonter);
+
+
 });
 
 
 
+//
 
 
 app.listen(port, () => {

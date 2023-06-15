@@ -219,6 +219,7 @@ let query = {
   'email': req.body.email,
 };
 
+let volonter= await volonteri.findOne(query);
 
 let promjene = {
   $set: {
@@ -229,13 +230,14 @@ let promjene = {
   }
 };
 
-
-
+if(volonter){
 let updateVolonter= await volonteri.updateOne(query,promjene);
 
 console.log("Promijenjeni osobni podaci volontera");
 update=true;
+}
 
+else  console.log("greška pri unosu opdataka");
 
 res.status(201);
 res.send(update);

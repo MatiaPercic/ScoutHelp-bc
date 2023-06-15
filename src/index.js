@@ -204,7 +204,47 @@ app.post("/volonterInfo", async (req,res)=>{
 
 
 
-//
+
+
+// update volonter 
+
+app.put("/updateVolonter", async (req,res)=>{
+
+let db=await connectDB();
+let volonteri=db.collection("Volonteri");
+
+let update=false;
+
+let query = {
+  'email': req.body.email,
+};
+
+
+let promjene = {
+  $set: {
+    'ime': req.body.new_ime,
+    'prezime':req.body.new_prezime,
+    'godine':req.body.new_godine,
+    'password':req.body.new_password,
+  }
+};
+
+
+
+let updateVolonter= await volonteri.updateOne(query,promjene);
+
+console.log("Promijenjeni osobni podaci volontera");
+update=true;
+
+
+res.status(201);
+res.send(update);
+
+
+
+});
+
+
 
 
 app.listen(port, () => {

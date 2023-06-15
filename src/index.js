@@ -237,7 +237,7 @@ console.log("Promijenjeni osobni podaci volontera");
 update=true;
 }
 
-else  console.log("greška pri unosu opdataka");
+else  console.log("greška pri izmijeni podataka");
 
 res.status(201);
 res.send(update);
@@ -257,8 +257,9 @@ app.put("/updateAdmin", async (req,res)=>{
   let query = {
     'email': req.body.email,
   };
-  
-  
+
+  let admin= await admins.findOne(query);
+
   let promjene = {
     $set: {
       'ime': req.body.new_ime,
@@ -270,13 +271,16 @@ app.put("/updateAdmin", async (req,res)=>{
   };
   
   
-  
+  if(admin){
   let updateAdmin= await admins.updateOne(query,promjene);
   
   console.log("Promijenjeni osobni podaci administratora");
   update=true;
   
-  
+  }
+  else
+    ("greška pri izmijeni podataka")
+
   res.status(201);
   res.send(update);
   

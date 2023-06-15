@@ -204,7 +204,86 @@ app.post("/volonterInfo", async (req,res)=>{
 
 
 
-//
+
+
+// update volonter 
+
+app.put("/updateVolonter", async (req,res)=>{
+
+let db=await connectDB();
+let volonteri=db.collection("Volonteri");
+
+let update=false;
+
+let query = {
+  'email': req.body.email,
+};
+
+let volonter= await volonteri.findOne(query);
+
+let promjene = {
+  $set: {
+    'ime': req.body.new_ime,
+    'prezime':req.body.new_prezime,
+    'godine':req.body.new_godine,
+    'password':req.body.new_password,
+  }
+};
+
+if(volonter){
+let updateVolonter= await volonteri.updateOne(query,promjene);
+
+console.log("Promijenjeni osobni podaci volontera");
+update=true;
+}
+
+else  console.log("greška pri unosu opdataka");
+
+res.status(201);
+res.send(update);
+
+
+
+});
+
+
+app.put("/updateAdmin", async (req,res)=>{
+
+  let db=await connectDB();
+  let admins=db.collection("Admins");
+  
+  let update=false;
+  
+  let query = {
+    'email': req.body.email,
+  };
+  
+  
+  let promjene = {
+    $set: {
+      'ime': req.body.new_ime,
+      'prezime':req.body.new_prezime,
+      'godine':req.body.new_godine,
+      'pozicija':req.body.new_pozicija,
+      'password':req.body.new_password,
+    }
+  };
+  
+  
+  
+  let updateAdmin= await admins.updateOne(query,promjene);
+  
+  console.log("Promijenjeni osobni podaci administratora");
+  update=true;
+  
+  
+  res.status(201);
+  res.send(update);
+  
+  
+  
+  });
+
 
 
 app.listen(port, () => {

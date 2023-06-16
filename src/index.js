@@ -296,15 +296,28 @@ app.put("/updateAdmin", async (req,res)=>{
     let db = await connectDB();
     let aktivnostiCol = db.collection("Aktivnosti");
   
+
     let projection = {
       projection:{
-      _id: 0 
+      _id: 0 ,
+      datum:
+      {
+        $dateToString: { format: "%Y-%m-%d", date: "$datum" }
+      },
+      opis:1,
+      oblik_rada:1,
+      admin:1,
+      volonteri:1,
+      sati:1
+
       }
     };
   
-    let aktivnosti = await aktivnostiCol.find({}, projection).toArray();
-  
-    res.send(aktivnosti);
+let aktivnosti = await aktivnostiCol.find({}, projection).toArray();
+
+
+
+  res.send(aktivnosti);
   });
 
 

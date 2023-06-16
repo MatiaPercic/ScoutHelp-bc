@@ -173,7 +173,7 @@ app.post("/registerAdmin", async (req,res)=>{
   
 
 
-// find volonter by email
+// ----- find volonter by email-----
 app.post("/volonterInfo", async (req,res)=>{
   
 
@@ -206,7 +206,7 @@ app.post("/volonterInfo", async (req,res)=>{
 
 
 
-// update volonter 
+// -----update volonter -----
 
 app.put("/updateVolonter", async (req,res)=>{
 
@@ -247,6 +247,7 @@ res.send(update);
 });
 
 
+// ----- update Admin-----
 app.put("/updateAdmin", async (req,res)=>{
 
   let db=await connectDB();
@@ -286,6 +287,24 @@ app.put("/updateAdmin", async (req,res)=>{
   
   
   
+  });
+
+
+  // ----- Prikaz svih  aktivnosti -----
+
+  app.post("/aktivnostiAll", async (req, res) => {
+    let db = await connectDB();
+    let aktivnostiCol = db.collection("Aktivnosti");
+  
+    let projection = {
+      projection:{
+      _id: 0 
+      }
+    };
+  
+    let aktivnosti = await aktivnostiCol.find({}, projection).toArray();
+  
+    res.send(aktivnosti);
   });
 
 

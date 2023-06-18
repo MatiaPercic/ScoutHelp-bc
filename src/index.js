@@ -200,6 +200,9 @@ app.put("/updateVolonter", async (req, res) => {
   res.send(update);
 });
 
+
+
+
 // ----- update Admin-----
 app.put("/updateAdmin", async (req, res) => {
   let db = await connectDB();
@@ -234,6 +237,10 @@ app.put("/updateAdmin", async (req, res) => {
   res.send(update);
 });
 
+
+
+
+
 // ----- Prikaz svih  aktivnosti -----
 
 app.post("/aktivnostiAll", async (req, res) => {
@@ -254,7 +261,12 @@ app.post("/aktivnostiAll", async (req, res) => {
     },
   };
 
-  let aktivnosti = await aktivnostiCol.find({}, projection).toArray();
+  let sort={
+    datum:-1
+  };
+
+
+  let aktivnosti = await aktivnostiCol.find({}, projection,).sort(sort).toArray();
 
   res.send(aktivnosti);
 });
@@ -314,10 +326,12 @@ if (volonter) {
     update = true;
   } else console.log("greška pri izmijeni podataka");
 
+
+  let volonter2= await volonteri.findOne(vol_query);
   console.log(br_akt);
   console.log(br_sati);
 
-  res.send(update);
+  res.send(volonter2);
 });
 
 
@@ -336,6 +350,21 @@ app.post("/aktivnostiVolonter", async (req, res) => {
         volonteri: { $in: [vol_email] },
       },
     },
+    {
+      $sort:{
+        datum:-1,
+      }
+    },
+    {
+      $project:{
+        datum: { $dateToString: { format: "%Y-%m-%d", date: "$datum" } },
+        opis: 1,
+        oblik_rada: 1,
+        volonteri: 1,
+        admin: 1,
+        sati: 1,
+      }
+    }
   ];
 
   const result = await aktivnostiCol.aggregate(pipeline).toArray();

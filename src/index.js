@@ -537,6 +537,29 @@ app.post("/volonterLastYear", async (req, res) => {
 });
 
 
+app.post("/addAktivnost",async (req,res)=>{
+
+  let db=await connectDB();
+  let aktivnosti=db.collection("Aktivnosti");
+
+  let datumString=req.body.datum;
+  let datum=new Date(datumString);
+
+  let new_akt={
+    datum:datum,
+    opis:req.body.opis,
+    oblik_rada:req.body.oblik_rada,
+    volonteri:req.body.volonteri,
+    admin:req.body.admin,
+    sati:req.body.sati
+  }
+
+  await aktivnosti.insertOne(new_akt);
+
+  res.send("upijesan Unos");
+
+});
+
 
 
 app.listen(port, () => {

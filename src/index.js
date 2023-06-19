@@ -83,11 +83,12 @@ app.post("/register", async (req, res) => {
   let volonter = {
     ime: req.body.ime,
     prezime: req.body.prezime,
-    godine: req.body.godine,
+    godine:parseInt(req.body.godine),
     email: req.body.email,
     password: req.body.password,
     broj_aktivnosti: 0,
     broj_volonterskih_sati: 0,
+    dobne_skupine_rada:[]
   };
 
   let filter = {
@@ -204,7 +205,7 @@ app.put("/updateVolonter", async (req, res) => {
     $set: {
       ime: req.body.new_ime,
       prezime: req.body.new_prezime,
-      godine: req.body.new_godine,
+      godine: parseInt(req.body.new_godine),
       password: req.body.new_password,
     },
   };
@@ -543,6 +544,7 @@ app.post("/addAktivnost",async (req,res)=>{
   let aktivnosti=db.collection("Aktivnosti");
 
   let datumString=req.body.datum;
+
   let datum=new Date(datumString);
 
   let new_akt={
@@ -554,9 +556,16 @@ app.post("/addAktivnost",async (req,res)=>{
     sati:req.body.sati
   }
 
-  await aktivnosti.insertOne(new_akt);
+  let checkAktivnosti=await aktivnosti.findOne(new_akt);
 
+  if(checkAktivnosti){
+    res.send("Aktivnost već unesena");
+  }
+  else{
+  await aktivnosti.insertOne(new_akt);
   res.send("upijesan Unos");
+  }
+
 
 });
 

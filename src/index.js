@@ -413,11 +413,7 @@ app.post("/volonterCurrentYear", async (req, res) => {
   let volonteri = db.collection("Volonteri");
 
   let volonter = {
-    ime: "",
-    prezime: "",
-    godine: "",
     email: req.body.email,
-    broj_aktivnosti: 0,
     broj_volonterskih_sati: 0,
   };
 
@@ -443,12 +439,7 @@ app.post("/volonterCurrentYear", async (req, res) => {
 
   let vol_p = {
     projection: {
-      _id: 0,
-      ime: 1,
-      prezime: 1,
-      godine: 1,
       email: 1,
-      broj_aktivnosti: 1,
       broj_volonterskih_sati: 1,
     },
   };
@@ -471,17 +462,14 @@ app.post("/volonterCurrentYear", async (req, res) => {
 
   let aktivnost = await aktivnosti.aggregate(pipeline).toArray();
 
-  let br_akt = 0;
   let br_sati = 0;
   let update = false;
 
   for (let akt of aktivnost) {
-    br_akt += 1;
     br_sati += akt.sati;
     update = true;
   }
 
-  volonter.broj_aktivnosti = br_akt;
   volonter.broj_volonterskih_sati = br_sati;
 
   res.send(volonter);
@@ -679,6 +667,7 @@ let volonteri=db.collection("Volonteri");
 let volInfo=await volonteri.find().toArray();
 
 let volonter = volInfo.map((vol) => ({
+  _id:vol._id,
   ime: vol.ime,
   prezime: vol.prezime,
   godine: vol.godine,

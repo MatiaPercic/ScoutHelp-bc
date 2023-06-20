@@ -517,7 +517,8 @@ app.post("/volonterLastYear", async (req, res) => {
 
   let vol = await volonteri.findOne(vol_q, vol_p);
 
-  if (vol) volonter = vol;
+  if (vol) 
+    volonter = vol;
 
   let pipeline = [
     {
@@ -648,6 +649,41 @@ app.get("/dobneSkupine", async (req,res)=>{
 
   res.send(listaSkupina);
 });
+
+
+
+app.get("/sviVOlonteri", async (req,res)=>{
+
+let db=await connectDB();
+let volonteri=db.collection("Volonteri");
+
+
+
+
+let volInfo=await volonteri.find().toArray();
+
+let volonter = volInfo.map((vol) => ({
+  ime: vol.ime,
+  prezime: vol.prezime,
+  godine: vol.godine,
+  email: vol.email,
+  broj_volonterskih_sati: vol.broj_volonterskih_sati,
+  broj_sati_ove: 0, 
+  broj_sati_prosle: 0, 
+  dobne_skupine_rada:[]
+}));
+
+if(volonter){
+res.status(201);
+res.send(volonter);
+}
+else 
+console.log("greška pri dobivanju podataka");
+
+});
+
+
+
 
 app.listen(port, () => {
   console.log("listening on port", port);

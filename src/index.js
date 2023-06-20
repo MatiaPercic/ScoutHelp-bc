@@ -602,6 +602,25 @@ app.put("/updateDobneSkupine", async(req,res)=>{
 });
 
 
+//----- prikaz dobnih skupina -----
+
+app.get("/dobneSkupine", async (req,res)=>{
+
+  let db=await connectDB();
+  let dobne=db.collection("Dobne_skupine");
+
+  let p={
+    projection:{
+      _id:0,
+      dobna_skupina:1
+    }
+  };
+
+  let listaSkupina=await dobne.find({},p).toArray();
+
+  res.send(listaSkupina);
+});
+
 app.listen(port, () => {
   console.log("listening on port", port);
 });

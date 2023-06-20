@@ -30,9 +30,7 @@ app.post("/login", async (req, res) => {
     prezime: 1,
     godine: 1,
     broj_aktivnosti: 1,
-    broj_volonterskih_sati: 1,
-    dobne_skupine_rada:1
-
+    broj_volonterskih_sati: 1
   };
 
   let volonter = await volonteri.findOne(filter, { projection });
@@ -81,6 +79,7 @@ app.post("/register", async (req, res) => {
 
   let db = await connectDB();
   let volonteri = db.collection("Volonteri");
+  let dobne=db.collection("Dobne_skupine_rada");
 
   let volonter = {
     ime: req.body.ime,
@@ -90,7 +89,6 @@ app.post("/register", async (req, res) => {
     password: req.body.password,
     broj_aktivnosti: 0,
     broj_volonterskih_sati: 0,
-    dobne_skupine_rada:[]
   };
 
   let filter = {
@@ -99,15 +97,26 @@ app.post("/register", async (req, res) => {
   let projection = {
     email: 1,
   };
+
+ let volonter_dobne={
+  email:req.body.email,
+  dobne_skupine_rada:[]
+ }
+
   let exist = await volonteri.findOne(filter, { projection });
 
   if (exist) {
     res.status(201);
     res.send("Korisnik već postoji");
   } else {
+    await dobne.insertOne(volonter_dobne,function(e,res){
+      if(e) throw e;
+
+      else console.log("Upiješan unos u dobne skupine");
+    });
     await volonteri.insertOne(volonter, function (e, res) {
       if (e) throw e;
-
+    
       console.log("uspiješnan upis volontera");
     });
 
@@ -389,7 +398,7 @@ app.put("/updateSati", async (req, res) => {
  
   console.log(br_akt);
   console.log(br_sati);
-
+res.send(update);
 
 });
 
@@ -508,7 +517,8 @@ app.post("/volonterLastYear", async (req, res) => {
 
   let vol = await volonteri.findOne(vol_q, vol_p);
 
-  if (vol) volonter = vol;
+  if (vol) 
+    volonter = vol;
 
   let pipeline = [
     {
@@ -579,7 +589,7 @@ app.put("/updateDobneSkupine", async(req,res)=>{
 
 
   let db= await connectDB();
-  let volonteri=db.collection("Volonteri");
+  let dobne=db.collection("Dobne_skupine_rada");
 
   let query={
     email:req.body.email
@@ -592,14 +602,87 @@ app.put("/updateDobneSkupine", async(req,res)=>{
   };
   
 
-  await volonteri.updateOne(query,promjene);
+  await dobne.updateOne(query,promjene);
 
   res.status(201);
 
-  let volonter = await volonteri.findOne(query);
+  let volonter = await dobne.findOne(query);
   res.send(volonter);
 
 });
+
+
+// -----dobne skupine volontera-----
+
+app.post("/dobneVolontera",async(req,res)=>{
+
+  let db=await connectDB();
+  let dobneRada=db.collection("Dobne_skupine_rada");
+
+  let filetr={
+    email:req.body.email
+  };
+
+  let dobne_volonter=await dobneRada.findOne(filetr);
+
+  res.send(dobne_volonter);
+});
+
+
+
+
+//----- prikaz dobnih skupina -----
+
+app.get("/dobneSkupine", async (req,res)=>{
+
+  let db=await connectDB();
+  let dobne=db.collection("Dobne_skupine");
+
+  let p={
+    projection:{
+      _id:1,
+      dobna_skupina:1
+    }
+  };
+
+  let listaSkupina=await dobne.find({},p).toArray();
+
+  res.send(listaSkupina);
+});
+
+
+
+app.get("/sviVOlonteri", async (req,res)=>{
+
+let db=await connectDB();
+let volonteri=db.collection("Volonteri");
+
+
+
+
+let volInfo=await volonteri.find().toArray();
+
+let volonter = volInfo.map((vol) => ({
+  ime: vol.ime,
+  prezime: vol.prezime,
+  godine: vol.godine,
+  email: vol.email,
+  broj_volonterskih_sati: vol.broj_volonterskih_sati,
+  broj_sati_ove: 0, 
+  broj_sati_prosle: 0, 
+  dobne_skupine_rada:[]
+}));
+
+if(volonter){
+res.status(201);
+res.send(volonter);
+}
+else 
+console.log("greška pri dobivanju podataka");
+
+});
+
+
 
 
 app.listen(port, () => {

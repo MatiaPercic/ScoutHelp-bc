@@ -386,12 +386,13 @@ app.put("/updateSati", async (req, res) => {
     update = true;
   } else console.log("greška pri izmijeni podataka");
 
-  let volonter2 = await volonteri.findOne(vol_query);
+ 
   console.log(br_akt);
   console.log(br_sati);
 
-  res.send(volonter2);
+
 });
+
 
 
 //----- prikaz sati i aktivnosti volontera u ovoj godini
@@ -571,6 +572,34 @@ app.post("/addAktivnost",async (req,res)=>{
 
 });
 
+
+// ----- update dobnih skupina rada -----
+
+app.put("/updateDobneSkupine", async(req,res)=>{
+
+
+  let db= await connectDB();
+  let volonteri=db.collection("Volonteri");
+
+  let query={
+    email:req.body.email
+  };
+
+  let promjene={
+    $set:{
+      dobne_skupine_rada:req.body.dobne_skupine_rada
+     }
+  };
+  
+
+  await volonteri.updateOne(query,promjene);
+
+  res.status(201);
+
+  let volonter = await volonteri.findOne(query);
+  res.send(volonter);
+
+});
 
 
 app.listen(port, () => {

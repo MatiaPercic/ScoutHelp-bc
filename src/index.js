@@ -478,7 +478,7 @@ app.post("/volonterCurrentYear", async (req, res) => {
 
 
 
-// ----- prikaz sati i aktivnosti volontera i prošloj godini-----
+// ----- prikaz sati volontera u prošloj akademskoj godini-----
 
 
 app.post("/volonterLastYear", async (req, res) => {
@@ -487,15 +487,23 @@ app.post("/volonterLastYear", async (req, res) => {
   let volonteri = db.collection("Volonteri");
 
   let volonter = {
-    ime: "",
-    prezime: "",
-    godine: "",
     email: req.body.email,
-    broj_aktivnosti: 0,
     broj_volonterskih_sati: 0,
   };
 
-  let lastYear = new Date().getFullYear() -1;
+  let lastYear = new Date();
+  let lastAcademicStart;
+  let lastAcademicEnd;
+
+  if(lastYear.getMonth()<=8){
+    lastAcademicStart=new Date(lastYear.getFullYear()-2,8,1);
+    lastAcademicEnd=new Date(lastYear.getFullYear()-1,7,31);
+  }
+  else{
+    lastAcademicStart=new Date(lastYear.getFullYear()-1,8,1);
+    lastAcademicEnd=new Date(lastYear.getFullYear(),7,31);
+  }
+
 
   let vol_email = req.body.email;
 
@@ -505,12 +513,7 @@ app.post("/volonterLastYear", async (req, res) => {
 
   let vol_p = {
     projection: {
-      _id: 0,
-      ime: 1,
-      prezime: 1,
-      godine: 1,
       email: 1,
-      broj_aktivnosti: 1,
       broj_volonterskih_sati: 1,
     },
   };
@@ -525,8 +528,8 @@ app.post("/volonterLastYear", async (req, res) => {
       $match: {
         volonteri: { $in: [vol_email] },
         datum: {
-          $gte: new Date(lastYear, 0, 1),
-          $lt: new Date(lastYear + 1, 0, 1),
+          $gte: lastAcademicStart,
+          $lt: lastAcademicEnd,
         },
       },
     },
@@ -534,17 +537,14 @@ app.post("/volonterLastYear", async (req, res) => {
 
   let aktivnost = await aktivnosti.aggregate(pipeline).toArray();
 
-  let br_akt = 0;
   let br_sati = 0;
   let update = false;
 
   for (let akt of aktivnost) {
-    br_akt += 1;
     br_sati += akt.sati;
     update = true;
   }
 
-  volonter.broj_aktivnosti = br_akt;
   volonter.broj_volonterskih_sati = br_sati;
 
   res.send(volonter);

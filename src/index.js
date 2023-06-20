@@ -173,7 +173,8 @@ app.post("/registerAdmin", async (req, res) => {
 
 
 // ----- find volonter by email-----
-app.post("/volonterInfo", async (req, res) => {
+
+/* app.post("/volonterInfo", async (req, res) => {
   let db = await connectDB();
   let volonteri = db.collection("Volonteri");
 
@@ -194,7 +195,7 @@ app.post("/volonterInfo", async (req, res) => {
   res.status(201);
   res.send(volonter);
 });
-
+ */
 
 
 
@@ -404,7 +405,7 @@ res.send(update);
 
 
 
-//----- prikaz sati i aktivnosti volontera u ovoj godini
+//----- prikaz sati volontera u ovoj akademskoj godini
 
 app.post("/volonterCurrentYear", async (req, res) => {
   let db = await connectDB();
@@ -420,7 +421,19 @@ app.post("/volonterCurrentYear", async (req, res) => {
     broj_volonterskih_sati: 0,
   };
 
-  let currentYear = new Date().getFullYear();
+  let currentDate = new Date();
+
+  let currentAcademicStart;
+  let currentAcademicEnd;
+
+  if(currentDate.getMonth()<=8){
+    currentAcademicStart=new Date(currentDate.getFullYear()-1,8,1);
+    currentAcademicEnd=new Date(currentDate.getFullYear(),7,31);
+  }
+  else{
+    currentAcademicStart=new Date(currentDate.getFullYear(),8,1);
+    currentAcademicEnd=new Date(currentDate.getFullYear()+1,7,31);
+  }
 
   let vol_email = req.body.email;
 
@@ -449,8 +462,8 @@ app.post("/volonterCurrentYear", async (req, res) => {
       $match: {
         volonteri: { $in: [vol_email] },
         datum: {
-          $gte: new Date(currentYear, 0, 1),
-          $lt: new Date(currentYear + 1, 0, 1),
+          $gte: currentAcademicStart,
+          $lt: currentAcademicEnd,
         },
       },
     },
@@ -491,17 +504,17 @@ app.post("/volonterLastYear", async (req, res) => {
     broj_volonterskih_sati: 0,
   };
 
-  let lastYear = new Date();
+  let currentDate = new Date();
   let lastAcademicStart;
   let lastAcademicEnd;
 
-  if(lastYear.getMonth()<=8){
-    lastAcademicStart=new Date(lastYear.getFullYear()-2,8,1);
-    lastAcademicEnd=new Date(lastYear.getFullYear()-1,7,31);
+  if(currentDate.getMonth()<=8){
+    lastAcademicStart=new Date(currentDate.getFullYear()-2,8,1);
+    lastAcademicEnd=new Date(currentDate.getFullYear()-1,7,31);
   }
   else{
-    lastAcademicStart=new Date(lastYear.getFullYear()-1,8,1);
-    lastAcademicEnd=new Date(lastYear.getFullYear(),7,31);
+    lastAcademicStart=new Date(currentDate.getFullYear()-1,8,1);
+    lastAcademicEnd=new Date(currentDate.getFullYear(),7,31);
   }
 
 
@@ -551,6 +564,8 @@ app.post("/volonterLastYear", async (req, res) => {
 });
 
 
+//----- dodaja novih aktivnosti -----
+
 app.post("/addAktivnost",async (req,res)=>{
 
   let db=await connectDB();
@@ -583,7 +598,7 @@ app.post("/addAktivnost",async (req,res)=>{
 });
 
 
-// ----- update dobnih skupina rada -----
+// ----- update dobnih skupina rada volontera -----
 
 app.put("/updateDobneSkupine", async(req,res)=>{
 
@@ -651,6 +666,7 @@ app.get("/dobneSkupine", async (req,res)=>{
 });
 
 
+//----- doihvaćanje svih volontera ------
 
 app.get("/sviVOlonteri", async (req,res)=>{
 

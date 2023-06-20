@@ -31,6 +31,8 @@ app.post("/login", async (req, res) => {
     godine: 1,
     broj_aktivnosti: 1,
     broj_volonterskih_sati: 1,
+    dobne_skupine_rada:1
+
   };
 
   let volonter = await volonteri.findOne(filter, { projection });

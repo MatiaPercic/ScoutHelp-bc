@@ -3,7 +3,7 @@ import cors from "cors";
 import connectDB from "./database.js";
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 10000;
 
 app.use(express.json());
 app.use(cors());

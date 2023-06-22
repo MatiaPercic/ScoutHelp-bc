@@ -569,8 +569,9 @@ app.post("/addAktivnost",async (req,res)=>{
     oblik_rada:req.body.oblik_rada,
     volonteri:req.body.volonteri,
     admin:req.body.admin,
-    sati:req.body.sati
+    sati:parseInt(req.body.sati)
   }
+
 
   let checkAktivnosti=await aktivnosti.findOne(new_akt);
 
@@ -578,8 +579,9 @@ app.post("/addAktivnost",async (req,res)=>{
     res.send("Aktivnost već unesena");
   }
   else{
+
   await aktivnosti.insertOne(new_akt);
-  res.send("upijesan Unos");
+  res.send("Upiješan unos");
   }
 
 
@@ -687,6 +689,64 @@ console.log("greška pri dobivanju podataka");
 
 });
 
+
+//-----Dohvaćanje emailova volontera
+
+app.get("/volonteriEmail", async(req,res)=>{
+
+  let db=await connectDB();
+  let volonteri=db.collection("Volonteri");
+
+  let p={
+    projection:{
+      email:1
+    }
+  }
+
+  let volonterLista=await volonteri.find({},p).toArray();
+
+res.send(volonterLista);
+});
+
+
+
+
+//-----Dohvaćanje emailova administratora
+
+app.get("/adminiEmail", async(req,res)=>{
+
+  let db=await connectDB();
+  let admins=db.collection("Admins");
+
+  let p={
+    projection:{
+      email:1
+    }
+  }
+
+  let adminLista=await admins.find({},p).toArray();
+
+res.send(adminLista);
+});
+
+
+//-----Dohvaćanje oblika rada
+
+app.get("/obliciRada", async(req,res)=>{
+
+  let db=await connectDB();
+  let o_rada=db.collection("Obici_rada"); // ---krivo nazvano u bazi
+
+  let p={
+    projection:{
+      opis:1
+    }
+  }
+
+  let oblikLista=await o_rada.find({},p).toArray();
+
+res.send(oblikLista);
+});
 
 
 

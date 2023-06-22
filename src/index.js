@@ -3,7 +3,7 @@ import cors from "cors";
 import connectDB from "./database.js";
 
 const app = express();
-const port = process.env.PORT || 10000;
+const port = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(cors());
@@ -169,33 +169,6 @@ app.post("/registerAdmin", async (req, res) => {
 });
 
 
-
-
-
-// ----- find volonter by email-----
-
-/* app.post("/volonterInfo", async (req, res) => {
-  let db = await connectDB();
-  let volonteri = db.collection("Volonteri");
-
-  let filter = {
-    email: req.body.email,
-  };
-  let projection = {
-    _id: 0,
-    ime: 1,
-    prezime: 1,
-    godine: 1,
-    broj_aktivnosti: 1,
-    broj_volonterskih_sati: 1,
-  };
-
-  let volonter = await volonteri.findOne(filter, { projection });
-
-  res.status(201);
-  res.send(volonter);
-});
- */
 
 
 
